@@ -1,5 +1,5 @@
 ﻿更新日志：
-GTASuperESCv6.3
+GTASuperESCv6.3   2018/11/23
 重构 设置热键,现可设置任意按键或组合键
 
 GTASuperESCv6.2   2018/11/19
