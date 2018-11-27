@@ -1943,7 +1943,11 @@ UDP许可证 ＝ 创建进入许可证 ()
 UDP数据报_创建 (26576)
 房间号 ＝ “#” ＋ 编码_BASE64编码 (文本_加密c (房间号, “O42xiMVordM72pvE”))
 .如果 (是否中文系统)
-    置剪辑板文本 (“打开GTASuperESC，输入以下房间号点加入房间即可：” ＋ #换行符 ＋ 房间号 ＋ #换行符 ＋ “复制时别漏字，少一个或多一个字符都会无法连接！” ＋ #换行符 ＋ “”)
+    .如果 (是否旧协议)
+        置剪辑板文本 (“打开GTASuperESC，输入以下房间号点加入房间即可：” ＋ #换行符 ＋ 房间号 ＋ #换行符 ＋ “复制时别漏字，少一个或多一个字符都会无法连接！”)
+    .否则
+        置剪辑板文本 (“使用不低于v7.0版GTASuperESC输入以下房间号加入：” ＋ #换行符 ＋ 房间号 ＋ #换行符 ＋ “复制时别漏字，少一个或多一个字符都会无法连接！”)
+    .如果结束
     输出文本 (“ ”, 假, 真)
     输出文本 (“已成功自动创建房间(服务器)，”, 真, 真)
     .如果真 (是否存在NAT回环 ＝ 假)
@@ -1952,7 +1956,7 @@ UDP数据报_创建 (26576)
     输出文本 (#换行符 ＋ “房间号：” ＋ 房间号)
     输出文本 (#换行符 ＋ “已复制房间号到剪辑板,直接粘贴发送给对方就可以了!”)
     输出文本 (#换行符 ＋ “已复制房间号到剪辑板,直接粘贴发送给对方就可以了!”)
-    输出文本 (#换行符 ＋ “版本软件可重新打开之后勾选使用旧版协议再创建房间”)
+    输出文本 (#换行符 ＋ “已复制房间号到剪辑板,直接粘贴发送给对方就可以了!”)
     .如果真 (是否旧协议 ＝ 假)
         输出文本 (#换行符 ＋ “【软件版本不低于v7.0才能加入此房间！】如需兼容较”)
         输出文本 (#换行符 ＋ “低版本软件可重新打开后勾选使用旧版协议再创建房间”)
@@ -2961,6 +2965,12 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
 .如果 (新密钥 ＝ “”)
     选择框1.选中 ＝ 真
     是否旧协议 ＝ 选择框1.选中
+    .如果 (是否中文系统)
+        输出文本 (“提示：该房间使用的是旧版协议，所以现在在以旧版协议模式运行，若队友都在使用最新版软件，建议用最新版软件(取消勾选使用旧协议)创建房间，新协议增强了加密,延迟降低3ms,流量降低60%,更省内存,还能识别粘包(传输更可靠)！”, 真, 真)
+    .否则
+        输出文本 (“Tip: The server is using the old version of the protocol, so now it is running in the old version of the protocol mode, if the teammates are using the latest version of the software, it is recommended to use the latest version of the software (uncheck the use of the old protocol) to create a server, the new protocol enhances encryption, Reduce latency by 3ms, reduce traffic by 60%, save memory, and identify sticky packets (transfer more reliable)!”, 真, 真)
+    .如果结束
+
 .否则
     新加密密钥 ＝ 转换16进制文本为字节集 (校验_取sha256 (到字节集 (新密钥)), 32)
 .如果结束
@@ -3520,6 +3530,15 @@ WinVer ＝ 取字节集数据 (Bin, #短整数型, )
 .子程序 _选择框1_被单击
 
 是否旧协议 ＝ 选择框1.选中
+.如果 (是否中文系统)
+    输出文本 (“提示: 旧版协议兼容任意版本的GTASuperESC(一键创建”, 假, 真)
+    输出文本 (“兼容v3.5及以上,但建议v4.5及以上)，新版协议延迟更”, 假, 真)
+    输出文本 (“低更省流量更省内存，加密更复杂，兼容v7.0及以上。”, 假, 真)
+    输出文本 (“如果队友在用旧版软件，可勾选使用旧协议创建房间，”, 假, 真)
+    输出文本 (“但建议都更新到最新版，直接用新协议创建房间。”, 假, 真)
+.否则
+    输出文本 (“The old version of the protocol is compatible with any version of GTASuperESC. The new version is compatible with GTASuperESC v7.0 and above. If the teammate is using the old version of the software, you can check the use of the old version of the protocol to create the server, but it is recommended to update to the latest version and use the new version directly. The new version of the protocol encryption is more complex, with lower latency, less traffic, and more memory savings.”, 真, 真)
+.如果结束
 触发保存 ()
 
 .子程序 _编辑框3_内容被改变
