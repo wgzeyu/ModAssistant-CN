@@ -12,6 +12,10 @@ UPnP模块 (源码：http://www.pudn.com/Download/item/id/2523129.html)
 CryptAPI (源码：https://bbs.125.la/thread-14033539-1-1.html)  
 若以上地址打不开或不能下载可从这里下载模块及模块源码：https://pan.baidu.com/s/1BF9sCpZbrJ6gpP9eia81Kw  
   
+## 新协议  
+![协议](/img/protocol.png)
+  
+## 旧协议  
 传输封包=```文本_加密c(<body><hash>时间!随机数</hash>传输内容</body><md5>body标签内(包含标签)的MD5</md5>)```  
 自动/手动创建房间，使用UDP或TCP传输时都是直接发送传输封包，加密后是字节集类型，不需要转换  
 WebSocket是使用workerman-chat聊天室，发送内容就像这样：  
