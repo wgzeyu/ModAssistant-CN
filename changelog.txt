@@ -1,5 +1,5 @@
 ﻿更新日志：
-GTASuperESCv7.1
+GTASuperESCv7.1   2018/11/29
 修复 新协议锁单人无法自动添加白名单
 
 GTASuperESCv7.0   2018/11/28
