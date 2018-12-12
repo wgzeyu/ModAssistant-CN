@@ -1,7 +1,7 @@
 <?php
-$pip = $_GET['ip'];
-$rip = $_SERVER["REMOTE_ADDR"];
-$fip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+$pip = $_GET['ip']; //用户提交IP
+$rip = $_SERVER["REMOTE_ADDR"]; //用户真实IP
+$fip = $_SERVER['HTTP_X_FORWARDED_FOR']; //是否代理IP
 $port = $_GET['port'];
 if(!$rip)
 {
@@ -12,24 +12,15 @@ if(!$fip)
 {
 	if($pip == $rip)
 	{
-		$time_s = microtime(true);
 		$fp = fsockopen($rip, $port, $errno, $errstr, 1.5);
-		$time_a = microtime(true) - $time_s;
 		if($fp)
 		{
-			$time_b = 50; //防止因连接太快，程序还没记录上传入连接就返回了
-			if((200 - $time_a) > $time_b)
-			{
-				$time_b = 200 - $time_a;
-			}
-			fclose($fp); //顺便防止在创建房间后才识别到断开连接，显示离开房间
-			usleep($time_b * 1000);
 			echo("Open");
 		}else
 		{
 			echo("Close");
-			fclose($fp);
 		}
+		fclose($fp);
 	}else
 	{
 		echo("You can only scan ".$rip);
