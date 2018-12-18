@@ -26,7 +26,7 @@
 
 .子程序 __启动窗口_创建完毕
 
-当前版本 ＝ 74
+当前版本 ＝ 75
 保存周期 ＝ 2000
 心跳包周期 ＝ 5000
 
@@ -467,6 +467,7 @@ GetProcessImageFileNameA (hp, name, 260)
 .参数 断网进程名称, 文本型
 .局部变量 进程的路径, 文本型
 .局部变量 进程的ID, 整数型
+.局部变量 运行结果, 文本型
 
 进程的ID ＝ 进程_名取ID (断网进程名称)
 进程的路径 ＝ 取进程路径 (进程的ID)
@@ -491,24 +492,32 @@ GetProcessImageFileNameA (hp, name, 260)
         返回 ()
     .如果真结束
     调试输出 (“进程路径”, 进程的路径)
-    运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC block program network” ＋ #引号 ＋ “ dir=out program=” ＋ #引号 ＋ 进程的路径 ＋ #引号 ＋ “ action=block enable=yes”, 假, 1)
+    ' 运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC block program network” ＋ #引号 ＋ “ dir=out program=” ＋ #引号 ＋ 进程的路径 ＋ #引号 ＋ “ action=block enable=yes”, 假, 1)
+    运行结果 ＝ 运行结果 ＋ 运行命令取结果 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC block program network” ＋ #引号 ＋ “ dir=out program=” ＋ #引号 ＋ 进程的路径 ＋ #引号 ＋ “ action=block enable=yes”, 1, 真)
+    运行结果 ＝ 运行结果 ＋ 运行命令取结果 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC block program network” ＋ #引号 ＋ “ dir=in program=” ＋ #引号 ＋ 进程的路径 ＋ #引号 ＋ “ action=block enable=yes”, 1, 真)
     .如果 (是否中文系统)
         输出文本 (“进程断网:已断开” ＋ 断网进程名称 ＋ “的网络”, 真, 真)
+        输出文本 (“执行结果：” ＋ 运行结果, 真, 真)
         输出文本 (“请在彻底掉线或退出游戏后再恢复网络，不然恢复后会保存成功”, 假, 真)
     .否则
         输出文本 (“The network of ” ＋ 断网进程名称 ＋ “ has been disconnected”, 真, 真)
+        输出文本 (“operation result: ” ＋ 运行结果, 真, 真)
     .如果结束
 
 .如果结束
 
 
 .子程序 恢复进程断网
+.局部变量 运行结果, 文本型
 
-运行 (“netsh advfirewall firewall delete rule name=” ＋ #引号 ＋ “GTASuperESC block program network” ＋ #引号, 假, 6)
+' 运行 (“netsh advfirewall firewall delete rule name=” ＋ #引号 ＋ “GTASuperESC block program network” ＋ #引号, 假, 6)
+运行结果 ＝ 运行命令取结果 (“netsh advfirewall firewall delete rule name=” ＋ #引号 ＋ “GTASuperESC block program network” ＋ #引号, 6, 真)
 .如果 (是否中文系统)
     输出文本 (“已取消进程断网”, 真, 真)
+    输出文本 (“执行结果：” ＋ 运行结果, 真, 真)
 .否则
     输出文本 (“Network disconnection of process has been canceled”, 真, 真)
+    输出文本 (“operation result: ” ＋ 运行结果, 真, 真)
 .如果结束
 
 
@@ -762,7 +771,9 @@ _启动窗口.标题 ＝ “GTASuperESCv” ＋ 到文本 (当前版本 ÷ 10) �
 选择框3.选中 ＝ 到逻辑型 (取出设置 (全配置, “网卡选中”, “假”))
 编辑框5.内容 ＝ 到文本 (取出设置 (全配置, “昵称”, “消息”))
 选择框5.选中 ＝ 到逻辑型 (取出设置 (全配置, “TCP传输”, “真”))
+是否TCP传输 ＝ 选择框5.选中
 选择框6.选中 ＝ 到逻辑型 (取出设置 (全配置, “UDP传输”, “真”))
+是否UDP传输 ＝ 选择框6.选中
 选择框7.选中 ＝ 到逻辑型 (取出设置 (全配置, “进程断网选中”, “假”))
 组合框2.内容 ＝ 到文本 (取出设置 (全配置, “进程断网进程”, “GTA5.exe”))
 组合框4.现行选中项 ＝ 到整数 (取出设置 (全配置, “系统语言”, 到文本 (取系统语言2 ())))
@@ -1727,9 +1738,7 @@ IP1 ＝ 转换为IP地址 (“”)
 .如果真 (取数组成员数 (网络详情) ≠ 0)
     返回 (真)
 .如果真结束
-运行 (“cmd /c netsh interface show interface >>” ＋ #引号 ＋ 取运行目录 () ＋ “\jgDxPv4cFgeTU3K9.txt” ＋ #引号, 真, 3)
-读取内容 ＝ 到文本 (读入文件 (取运行目录 () ＋ “\jgDxPv4cFgeTU3K9.txt”))
-删除文件 (取运行目录 () ＋ “\jgDxPv4cFgeTU3K9.txt”)
+读取内容 ＝ 运行命令取结果 (“netsh interface show interface”, 3)
 读取内容 ＝ 文本_替换 (读取内容, , , , “-------------------------------------------------------------------------”, #换行符, “  ”, “ ”, “  ”, “ ”, “  ”, “ ”, #换行符 ＋ #换行符, “”)
 读取内容 ＝ 文本_替换 (读取内容, , , , “---”, “”, “  ”, “ ”, “--”, “”, “   ”, “ ”, “--”, “”)
 读取内容 ＝ 文本_替换 (“<>” ＋ 读取内容, , , , “<>” ＋ #换行符, “”, “<>”, “”, “  ”, “ ”, “-”, “”, “  ”, “ ”)
@@ -1753,6 +1762,25 @@ IP1 ＝ 转换为IP地址 (“”)
     返回 (假)
 .如果真结束
 返回 (真)
+
+
+.子程序 运行命令取结果, 文本型
+.参数 运行的命令, 文本型
+.参数 窗口显示方式, 整数型
+.参数 是否删换行, 逻辑型, 可空
+.局部变量 当前命令, 文本型
+.局部变量 当前随机时间戳, 文本型
+.局部变量 返回命令结果, 文本型
+
+当前随机时间戳 ＝ 到文本 (时间_取现行时间戳 ()) ＋ 到文本 (取随机数 (10000, 99999))
+当前命令 ＝ “cmd /c ” ＋ 运行的命令 ＋ “ >>” ＋ #引号 ＋ 取运行目录 () ＋ “\RunCMD_” ＋ 当前随机时间戳 ＋ “.txt” ＋ #引号
+运行 (当前命令, 真, 窗口显示方式)
+返回命令结果 ＝ 到文本 (读入文件 (取运行目录 () ＋ “\RunCMD_” ＋ 当前随机时间戳 ＋ “.txt”))
+删除文件 (取运行目录 () ＋ “\RunCMD_” ＋ 当前随机时间戳 ＋ “.txt”)
+.如果真 (是否删换行)
+    返回命令结果 ＝ 文本_替换 (返回命令结果, , , , #换行符, “”)
+.如果真结束
+返回 (返回命令结果)
 
 .子程序 _创建upnp时钟_周期事件
 
@@ -1899,31 +1927,14 @@ UPnP创建结果 ＝ 100
 .如果真 (按钮2.禁止 且 是否广播)
     是否已执行 ＝ 是否已执行 ＋ 1
     .如果 (是否旧协议)
-        .如果 (继续接收ID ≠ 0)
-            此次发送数据 ＝ 封装数据 (“KILLGTA”, 加密秘钥)
-        .否则
-            发送数据 (封装数据 (“KILLGTA”, 加密秘钥), , 真)
-            发送数据 (封装数据 (“KILLGTA”, 加密秘钥), , 真)
-        .如果结束
-
+        发送数据 (封装数据 (“KILLGTA”, 加密秘钥), , 真)
     .否则
-        .如果 (继续接收ID ≠ 0)
-            此次发送数据 ＝ 新封装数据 (106, 新加密密钥)
-        .否则
-            发送数据 (新封装数据 (106, 新加密密钥), , 真)
-            发送数据 (新封装数据 (106, 新加密密钥), , 真)
-        .如果结束
-
+        发送数据 (新封装数据 (106, 新加密密钥), , 真)
     .如果结束
-    .如果真 (继续接收ID ≠ 0)
-        .计次循环首 (2, )
-            发送数据 (此次发送数据, , 真)
-        .计次循环尾 ()
-    .如果真结束
     .如果 (是否中文系统)
-        输出文本 (“干掉GTA:已发送两次数据到其他客户端”, 真, 真)
+        输出文本 (“干掉GTA:已发送结束指令到其他客户端”, 真, 真)
     .否则
-        输出文本 (“Kill GTA:Data has been sent twice to other clients”, 真, 真)
+        输出文本 (“Kill GTA:Data has been sent to other clients”, 真, 真)
     .如果结束
 
 .如果真结束
@@ -2344,6 +2355,7 @@ UDP超时检测.时钟周期 ＝ 1000
 .局部变量 解包结果, 逻辑型
 .局部变量 解包内容, 文本型
 .局部变量 解包数据类型, 整数型
+.局部变量 计算延迟时间, 整数型
 
 解包结果 ＝ 新解包数据 (收到的数据, 新加密密钥, 解包数据类型, 解包内容)
 ' 调试输出 (“新收到数据解包完成”, 解包数据类型)
@@ -2364,7 +2376,11 @@ UDP超时检测.时钟周期 ＝ 1000
 .如果真结束
 .如果真 (解包数据类型 ＝ 13)  ' OKOK pong
     .如果真 (延迟发送时间 ≠ 0)
-        加入延迟 (到长整数 (时间_取现行时间戳 ()) － 延迟发送时间)
+        计算延迟时间 ＝ 到长整数 (时间_取现行时间戳 ()) － 延迟发送时间
+        .如果真 (计算延迟时间 ＜ 1)
+            计算延迟时间 ＝ 1
+        .如果真结束
+        加入延迟 (计算延迟时间)
         延迟发送时间 ＝ 0
         检测延迟超时.时钟周期 ＝ 0
         更新延迟显示 ()
@@ -2396,6 +2412,7 @@ UDP超时检测.时钟周期 ＝ 1000
 .参数 数据, 字节集
 .参数 UDP数据, 逻辑型, 可空
 .局部变量 解包内容, 文本型
+.局部变量 计算延迟时间, 整数型
 
 .如果真 (到文本 (数据) ＝ “PING”)
     上次接收时间 ＝ 到长整数 (时间_取现行时间戳 ())
@@ -2424,7 +2441,11 @@ UDP超时检测.时钟周期 ＝ 1000
 .如果真结束
 .如果真 (解包内容 ＝ “OKOK”)
     .如果真 (延迟发送时间 ≠ 0)
-        加入延迟 (到长整数 (时间_取现行时间戳 ()) － 延迟发送时间)
+        计算延迟时间 ＝ 到长整数 (时间_取现行时间戳 ()) － 延迟发送时间
+        .如果真 (计算延迟时间 ＜ 1)
+            计算延迟时间 ＝ 1
+        .如果真结束
+        加入延迟 (计算延迟时间)
         延迟发送时间 ＝ 0
         检测延迟超时.时钟周期 ＝ 0
         更新延迟显示 ()
@@ -2476,6 +2497,9 @@ UDP超时检测.时钟周期 ＝ 1000
 .局部变量 已次数, 整数型
 .局部变量 当前时间, 长整数型
 
+.如果真 (取字节集长度 (内容a) ＝ 0)
+    返回 (“”)
+.如果真结束
 内容 ＝ 文本_解密c (内容a, 秘钥)
 .如果真 (内容 ＝ “”)
     .如果 (是否中文系统)
@@ -2567,6 +2591,9 @@ MD5c ＝ 校验_取md5 (到字节集 (内容), 真)
 .局部变量 收到的数据, 字节集
 
 收到的数据 ＝ 服务器1.取回数据 ()
+.如果真 (取字节集长度 (收到的数据) ＜ 4)
+    返回 ()
+.如果真结束
 .如果 (是否旧协议)
     .如果真 (ping包检测 (收到的数据, 服务器1.取回客户 ()))
         返回 ()
@@ -2580,7 +2607,6 @@ MD5c ＝ 校验_取md5 (到字节集 (内容), 真)
 .如果结束
 .如果真 (是否没重复 (收到的数据))
     发送数据 (收到的数据, 0)
-
     .如果 (是否旧协议)
         收到数据 (收到的数据)
     .否则
@@ -2604,7 +2630,6 @@ MD5c ＝ 校验_取md5 (到字节集 (内容), 真)
     当前字节集 ＝ 取字节集中间 (当前字节集, 4 ＋ 当前内容长度 ＋ 1, 取字节集长度 (当前字节集) － (4 ＋ 当前内容长度))
     新收到数据 (当前取出字节集, UDP数据)
 .判断循环尾 ()
-
 
 .子程序 拆分粘包_ping包检测, 逻辑型
 .参数 检测数据, 字节集
@@ -2636,6 +2661,9 @@ MD5c ＝ 校验_取md5 (到字节集 (内容), 真)
 .局部变量 解包数据类型, 整数型
 .局部变量 解包状态, 逻辑型
 
+.如果真 (取字节集长度 (检测数据) ＝ 0)
+    返回 (真)
+.如果真结束
 .如果 (是否旧协议)
     解包内容 ＝ 解包数据 (检测数据, 加密秘钥, 真)
     .如果真 (解包内容 ＝ “PING”)
@@ -2680,7 +2708,6 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
 内容 ＝ 内容 ＋ “<md5>” ＋ MD5a ＋ “</md5>”
 返回 (文本_加密c (内容, 秘钥))
 
-
 .子程序 新封装数据, 字节集
 .参数 数据类型a, 整数型
 .参数 加密密钥a, 字节集
@@ -2722,6 +2749,9 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
 .局部变量 当前时间, 长整数型
 
 ' 协议：16校验MD5 8时间戳 4随机数 2软件版本 1内容类型 剩下的都放内容 内容可省略
+.如果真 (取字节集长度 (输入内容a) ＝ 0)
+    返回 (假)
+.如果真结束
 当前封装 ＝ 对称解密 (输入内容a, 加密密钥a, “AES256-CFB”, #数据填充_PKCS5_PADDING)
 当前长度 ＝ 取字节集长度 (当前封装)
 .如果真 (当前长度 ＝ 0)
@@ -2845,7 +2875,10 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
             服务器1.发送数据 (全客户 [已次数], 发送的数据, 2)
         .计次循环尾 ()
     .否则
-        客户1.发送数据 (发送的数据)
+        .如果真 (是否TCP传输)
+            客户1.发送数据 (发送的数据)
+        .如果真结束
+
     .如果结束
 
 .如果真结束
@@ -2855,10 +2888,19 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
             .如果真 (已次数 ＞ 取数组成员数 (全UDP客户))
                 跳出循环 ()
             .如果真结束
+            UDP数据报.发送 (全UDP客户 [已次数].对方信息, 发送的数据, -1)  ' UDP双倍发包
             UDP数据报.发送 (全UDP客户 [已次数].对方信息, 发送的数据, -1)
         .计次循环尾 ()
     .否则
-        数据报1.发送数据 (服务器IP, 使用端口, 发送的数据)
+        .如果真 (是否UDP传输)
+            数据报1.发送数据 (服务器IP, 使用端口, 发送的数据)  ' UDP双倍发包
+            数据报1.发送数据 (服务器IP, 使用端口, 发送的数据)
+            .如果真 (是否关键)
+                数据报1.发送数据 (服务器IP, 使用端口, 发送的数据)  ' 关键封包UDP三倍发包
+            .如果真结束
+
+        .如果真结束
+
     .如果结束
 
 .如果真结束
@@ -3084,7 +3126,7 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
 .如果真 (房间ID ＝ “”)
     房间ID ＝ 文本_取出中间文本 (临时内容, “?”, “-”)
 .如果真结束
-.如果真 (选择框5.选中 ＝ 假 且 选择框6.选中 ＝ 假)
+.如果真 (是否TCP传输 ＝ 假 且 是否UDP传输 ＝ 假)
     .如果 (是否中文系统)
         输出文本 (“你不勾选TCP传输也不勾选UDP传输，你想怎么传输？意念传输？”, 真, 真)
     .否则
@@ -3173,7 +3215,7 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
     .如果结束
     返回 ()
 .如果真结束
-.如果真 (选择框5.选中)
+.如果真 (是否TCP传输)
     重试次数 ＝ 2
     .计次循环首 (重试次数, 已次数)
         .如果 (是否中文系统)
@@ -3223,12 +3265,12 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
 
     .计次循环尾 ()
 .如果真结束
-.如果真 (选择框6.选中)
+.如果真 (是否UDP传输)
     是否关闭服务器 ＝ 真
     置随机数种子 ()
     数据报1.端口 ＝ 取随机数 (1025, 32767)  ' 易语言说明里是32767。。
     UDP心跳包.时钟周期 ＝ 500
-    .如果真 (选择框5.选中 ＝ 假)
+    .如果真 (是否TCP传输 ＝ 假)
         连接后禁止各种组件 ()
         .如果 (是否中文系统)
             输出文本 (#换行符 ＋ “仅UDP不知道是否连接成功，也不会记到房间人数里，反正是已经加入房间了，建议在右下角说句话试试，能看到则为加入成功，若服务器版本低于v2.4或没有创建UDP映射，将不支持UDP连接。”)
@@ -3916,6 +3958,7 @@ ping时钟.时钟周期 ＝ 10000
 .局部变量 全部对方IP, 文本型
 .局部变量 已次数, 整数型
 .局部变量 剪辑版添加数量, 整数型
+.局部变量 运行结果, 文本型
 
 .如果真 (按钮11.标题 ＝ 转换编码 (“GTA锁单人”) 或 按钮11.标题 ＝ 转换编码 (“GTA卡单人”) 或 按钮11.标题 ＝ “Private Public”)
     .如果 (选择框3.禁止 ＝ 真)
@@ -3943,9 +3986,9 @@ ping时钟.时钟周期 ＝ 10000
         .如果 (是否中文系统)
             输出文本 (“添加白名单让好友进来的两种方法：”, 假, 真)
             输出文本 (“1.复制对方IP后再锁单人(多个IP请用换行或逗号分开)”, 假, 真)
-            输出文本 (“  Home菜单-设置-网络信息里查看IP，应该支持加速器”, 假, 真)
-            输出文本 (“2.用本软件最新版联机后再锁单人(可能不支持加速器)”, 假, 真)
-            输出文本 (“(加速器是指的对方开的,没测试过自己开加速器锁单人)”, 假, 真)
+            输出文本 (“  Home菜单-设置-网络信息里查看公有地址,支持加速器”, 假, 真)
+            输出文本 (“2.用本软件最新版联机后再锁单人,不支持大部分加速器”, 假, 真)
+            输出文本 (“(加速器是指的对方开的,自己开加速器可能锁不住单人)”, 假, 真)
         .否则
             输出文本 (“Add a whitelist to let friends come in two ways: 1. Copy the other party's IP and then click private public (multiple IPs are separated by a newline or comma); 2. The other party uses the software to connect with you and then click private public”, 真, 真)
         .如果结束
@@ -3992,21 +4035,29 @@ ping时钟.时钟周期 ＝ 10000
             输出文本 (“There are a total of ” ＋ 到文本 (取数组成员数 (队友IP)) ＋ “ IPs in the whitelist”, 真, 真)
         .如果结束
         .如果 (取数组成员数 (队友IP) ＝ 0)
-            运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=out profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes”, 假, 6)
-            运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=in profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes”, 假, 6)
+            ' 运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=out profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes”, 假, 6)
+            ' 运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=in profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes”, 假, 6)
+            运行结果 ＝ 运行结果 ＋ 运行命令取结果 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=out profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes”, 6, 真)
+            运行结果 ＝ 运行结果 ＋ 运行命令取结果 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=in profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes”, 6, 真)
+
         .否则
             .计次循环首 (取数组成员数 (队友IP), 已次数)
                 全部对方IP ＝ 全部对方IP ＋ 队友IP [已次数] ＋ #换行符
             .计次循环尾 ()
-            运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=out profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes remoteip=” ＋ 避开IP计算 (全部对方IP), 假, 6)
-            运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=in profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes remoteip=” ＋ 避开IP计算 (全部对方IP), 假, 6)
+            ' 运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=out profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes remoteip=” ＋ 避开IP计算 (全部对方IP), 假, 6)
+            ' 运行 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=in profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes remoteip=” ＋ 避开IP计算 (全部对方IP), 假, 6)
+            运行结果 ＝ 运行结果 ＋ 运行命令取结果 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=out profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes remoteip=” ＋ 避开IP计算 (全部对方IP), 6, 真)
+            运行结果 ＝ 运行结果 ＋ 运行命令取结果 (“netsh advfirewall firewall add rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号 ＋ “ dir=in profile=any localport=6672 remoteport=any protocol=UDP action=block enable=yes remoteip=” ＋ 避开IP计算 (全部对方IP), 6, 真)
+
         .如果结束
         .如果 (是否中文系统)
             输出文本 (“已添加防火墙规则禁止战局连接”, 真, 真)
+            输出文本 (“执行结果：” ＋ 运行结果, 真, 真)
             按钮11.标题 ＝ 转换编码 (“恢复公开”)
             输出文本 (“现在再加入GTA线上模式就可以了！”, 真, 真)
         .否则
             输出文本 (“Firewall rules have been added to prohibit war connection”, 真, 真)
+            输出文本 (“operation result: ” ＋ 运行结果, 真, 真)
             按钮11.标题 ＝ “recover”
             输出文本 (“Now join GTA online!”, 真, 真)
         .如果结束
@@ -4015,9 +4066,11 @@ ping时钟.时钟周期 ＝ 10000
     返回 ()
 .如果真结束
 .如果真 (按钮11.标题 ＝ 转换编码 (“恢复公开”) 或 按钮11.标题 ＝ “recover”)
-    运行 (“netsh advfirewall firewall delete rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号, 假, 6)
+    ' 运行 (“netsh advfirewall firewall delete rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号, 假, 6)
+    运行结果 ＝ 运行结果 ＋ 运行命令取结果 (“netsh advfirewall firewall delete rule name=” ＋ #引号 ＋ “GTASuperESC Ka Dan Ren” ＋ #引号, 6, 真)
     .如果 (是否中文系统)
         输出文本 (“已删除相关防火墙规则”, 真, 真)
+        输出文本 (“执行结果：” ＋ 运行结果, 真, 真)
         .如果 (选择框7.禁止 ＝ 真)
             按钮11.标题 ＝ 转换编码 (“GTA卡单人”)
         .否则
@@ -4026,6 +4079,7 @@ ping时钟.时钟周期 ＝ 10000
 
     .否则
         输出文本 (“Related firewall rules have been removed”, 真, 真)
+        输出文本 (“operation result: ” ＋ 运行结果, 真, 真)
         按钮11.标题 ＝ “Private Public”
     .如果结束
 
@@ -4366,10 +4420,12 @@ UDP数据报.配置 (哪个端口)
 
 .子程序 _选择框6_被单击
 
+是否UDP传输 ＝ 选择框6.选中
 触发保存 ()
 
 .子程序 _选择框5_被单击
 
+是否TCP传输 ＝ 选择框5.选中
 触发保存 ()
 .如果真 (选择框5.选中 ＝ 假)
     .如果 (是否中文系统)
@@ -5132,6 +5188,8 @@ ws.Send (真, #OPCODE_TEXT, 真, 编码_Ansi到Utf8_2 (引号替换 (“{'type':
 .全局变量 是否旧协议, 逻辑型
 .全局变量 时间防重放, 逻辑型
 .全局变量 是否已提示过时间防重放, 逻辑型
+.全局变量 是否TCP传输, 逻辑型
+.全局变量 是否UDP传输, 逻辑型
 .版本 2
 .支持库 sock
 
@@ -5196,9 +5254,9 @@ ws.Send (真, #OPCODE_TEXT, 真, 编码_Ansi到Utf8_2 (引号替换 (“{'type':
 .DLL命令 GetSystemDefaultLCID, 整数型, "kernel32", "GetSystemDefaultLCID"
 .版本 2
 
-.常量 端口测试网站, "<文本长度: 1235>", , 常量值可用易语言IDE打开.e格式源码后双击查看；<0>编码<1>提交方式<2>提交地址<3>提交信息<4>成功信息<5>失败信息<6>cookie验证地址<7>超时时间(秒)<8>输出信息<9>
+.常量 端口测试网站, "<文本长度: 1505>", , 常量值可用易语言IDE打开.e格式源码后双击查看；<0>编码<1>提交方式<2>提交地址<3>提交信息<4>成功信息<5>失败信息<6>cookie验证地址<7>超时时间(秒)<8>输出信息<9>
 .常量 全部内网IP, "<文本长度: 346>", , 常量值可用易语言IDE打开.e格式源码后双击查看；里面记录了所有的内网IP和保留IP
-.常量 检测公网IP网站, "<文本长度: 547>", , 常量值可用易语言IDE打开.e格式源码后双击查看；<0>编码<1>提交方式<2>提交地址<3>提交信息<4>取出前<5>取出后<6>超时时间(秒)<7>是否够快<8>输出信息<9>
+.常量 检测公网IP网站, "<文本长度: 433>", , 常量值可用易语言IDE打开.e格式源码后双击查看；<0>编码<1>提交方式<2>提交地址<3>提交信息<4>取出前<5>取出后<6>超时时间(秒)<7>是否够快<8>输出信息<9>
 .常量 全键名称, "<文本长度: 534>", , 常量值可用易语言IDE打开.e格式源码后双击查看；
 .常量 全键代码, "<文本长度: 540>", , 常量值可用易语言IDE打开.e格式源码后双击查看；
 .常量 错误点阵, "<文本长度: 536>", , 常量值可用易语言IDE打开.e格式源码后双击查看；
