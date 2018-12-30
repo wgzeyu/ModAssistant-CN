@@ -26,7 +26,7 @@
 
 .子程序 __启动窗口_创建完毕
 
-当前版本 ＝ 77
+当前版本 ＝ 78
 保存周期 ＝ 2000
 心跳包周期 ＝ 5000
 
@@ -454,13 +454,13 @@ GetProcessImageFileNameA (hp, name, 260)
 
 .子程序 获取服务器等待提示
 
-延时 (5000)
+延时 (8000)
 .如果 (获取服务器结果 ＝ 0)
     输出文本 (“请稍候,仍在获取联机所需的服务器信息..”, 真, 真)
 .否则
     返回 ()
 .如果结束
-延时 (10000)
+延时 (12000)
 .如果 (获取服务器结果 ＝ 0)
     输出文本 (“仍在获取服务器信息.....这网也太慢了吧”, 真, 真)
 .否则
@@ -1028,6 +1028,13 @@ _启动窗口.标题 ＝ “GTASuperESCv” ＋ 到文本 (当前版本 ÷ 10) �
         .如果结束
         是否为NATPMP ＝ 假
         创建结果 ＝ 创建upnp主线程 (创建端口, “TCP”, 26576, 内网IP, “GTASuperESC_” ＋ 到文本 (取随机数 (1000, 9999)), 1)
+        .如果真 (是否为IPv4地址 (创建upnp返回IP))
+            路由器获取到的IP ＝ 创建upnp返回IP
+            .如果真 (是否为IPv4地址 (路由器获取到的IP) ＝ 假)
+                路由器获取到的IP ＝ “”
+            .如果真结束
+
+        .如果真结束
         加入成员 (全创建结果, 创建结果)
         .如果真 (创建结果 ＝ -1)
             .如果 (是否中文系统)
@@ -1384,6 +1391,7 @@ _启动窗口.标题 ＝ “GTASuperESCv” ＋ 到文本 (当前版本 ÷ 10) �
 
 upnpnat.创建 (“{AE1E00AA-3FD5-403C-8A27-2BBDC30CD0E1}”, )
 执行结果 ＝ upnpnat.读对象型属性 (“StaticPortMappingCollection”, ).对象型方法 (“Add”, 映射端口, 协议, 本地端口, 本地IP, 真, 描述)
+创建upnp返回IP ＝ 执行结果.读文本属性 (“ExternalIPAddress”, )
 .如果真 (执行结果.读逻辑属性 (“Enabled”, ) ＝ 假)
     返回 (0)
 .如果真结束
@@ -3727,8 +3735,8 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
 .否则
     输出文本 (“Start detecting updates and getting the server information you need to connect online”, 真, 真)
 .如果结束
-.计次循环首 (3, 循环次数)
-    访问结果 ＝ 到文本 (编码_BASE64解码 (文本_取出中间文本 (到文本 (网页_访问_对象 (“https://wgzeyu.gtxcn.com/GTASuperESC/updatecheck.php”, 1, “ver=” ＋ 到文本 (当前版本), , , , , , , , , 10)), “<base64>”, “</base64>”)))
+.计次循环首 (2, 循环次数)
+    访问结果 ＝ 到文本 (编码_BASE64解码 (文本_取出中间文本 (到文本 (网页_访问_对象 (“https://wgzeyu.gtxcn.com/GTASuperESC/updatecheck.php”, 1, “ver=” ＋ 到文本 (当前版本), , , , , , , , , 10 × 循环次数)), “<base64>”, “</base64>”)))
     使用服务器 ＝ “HTTPS:wgzeyu.gtxcn.com[加密,日本VPS+CloudFlare,只取新版内容]”  ' 使用PHP防止被cloudflare缓存,第一时间读取到更新,并且只输出比当前版本新的版本号,加载更快
     .如果 (是否中文系统)
         使用服务器a ＝ “获取成功，使用WGzeyu主服务器，可以联机了”
@@ -3738,7 +3746,7 @@ MD5a ＝ 校验_取md5 (到字节集 (内容), 真)
     .如果真 (访问结果 ≠ “”)  ' 1默认使用带HTTPS的个人服务器读取更新
         跳出循环 ()
     .如果真结束
-    访问结果 ＝ 到文本 (编码_BASE64解码 (文本_取出中间文本 (到文本 (网页_访问_对象 (“https://wgzeyu.github.io/GTASuperESC/updatecheck.txt”, 0, , , , , , , , , , 10)), “<base64>”, “</base64>”)))
+    访问结果 ＝ 到文本 (编码_BASE64解码 (文本_取出中间文本 (到文本 (网页_访问_对象 (“https://wgzeyu.github.io/GTASuperESC/updatecheck.txt”, 0, , , , , , , , , , 10 × 循环次数)), “<base64>”, “</base64>”)))
     使用服务器 ＝ “HTTPS:wgzeyu.github.io[加密,GitHubIO]”
     .如果 (是否中文系统)
         使用服务器a ＝ “获取成功，从主服获取失败，从备服获取成功”
@@ -5124,6 +5132,27 @@ ws.Send (真, #OPCODE_TEXT, 真, 编码_Ansi到Utf8_2 (引号替换 (“{'type':
 系统_取网卡信息 (网卡)
 .计次循环首 (取数组成员数 (网卡), 已次数)
     .如果真 (是否为IPv4地址 (网卡 [已次数].网关))
+        .如果真 (是否内网IP (网卡 [已次数].网关))
+            .如果真 (取文本左边 (网卡 [已次数].网关, 8) ＝ “192.168.” 或 取文本左边 (网卡 [已次数].网关, 3) ＝ “10.”)
+                返回 (网卡 [已次数].网关)
+            .如果真结束
+
+        .如果真结束
+
+    .如果真结束
+
+.计次循环尾 ()
+.计次循环首 (取数组成员数 (网卡), 已次数)
+    .如果真 (是否为IPv4地址 (网卡 [已次数].网关))
+        .如果真 (网卡 [已次数].网关 ≠ “0.0.0.0”)
+            返回 (网卡 [已次数].网关)
+        .如果真结束
+
+    .如果真结束
+
+.计次循环尾 ()
+.计次循环首 (取数组成员数 (网卡), 已次数)
+    .如果真 (是否为IPv4地址 (网卡 [已次数].网关))
         返回 (网卡 [已次数].网关)
     .如果真结束
 
@@ -5132,29 +5161,69 @@ ws.Send (真, #OPCODE_TEXT, 真, 编码_Ansi到Utf8_2 (引号替换 (“{'type':
 
 .子程序 _NATPMP时钟_周期事件
 .局部变量 创建结果, 整数型
+.局部变量 当前创建结果, 整数型
 
 创建结果 ＝ 0
 创建结果 ＝ 创建结果 ＋ NATPMP创建映射 (网关IP, “TCP”, 26576, 使用端口, 3600)
 创建结果 ＝ 创建结果 ＋ NATPMP创建映射 (网关IP, “UDP”, 26576, 使用端口, 3600)
-.如果真 (创建结果 ＝ 0)
+.如果真 (创建结果 ≠ 使用端口 × 2)
     .如果 (是否中文系统)
-        输出文本 (#错误点阵, 假, 真)
-        输出文本 (“错误:NAT-PMP端口映射续期失败”, 真, 真)
+        输出文本 (“NAT-PMP端口映射续期失败,正在重试..”, 真, 真)
     .否则
-        输出文本 (“Error: NAT-PMP port mapping renewal failed”, 真, 真)
+        输出文本 (“NAT-PMP port mapping renewal failed, retrying:”, 真, 真)
     .如果结束
-
-.如果真结束
-.如果真 (创建结果 ≠ 0 且 创建结果 ≠ 使用端口 × 2)
     创建结果 ＝ 0
     创建结果 ＝ 创建结果 ＋ NATPMP创建映射 (网关IP, “TCP”, 26576, 使用端口, 3600)
     创建结果 ＝ 创建结果 ＋ NATPMP创建映射 (网关IP, “UDP”, 26576, 使用端口, 3600)
     .如果真 (创建结果 ≠ 使用端口 × 2)
         .如果 (是否中文系统)
-            输出文本 (#错误点阵, 假, 真)
-            输出文本 (“错误:NAT-PMP映射续期失败或发生变化”, 真, 真)
+            输出文本 (“NAT-PMP重试依然续期失败,尝试切换为UPnP”, 真, 真)
         .否则
-            输出文本 (“Error: NAT-PMP mapping renewal failed or changed”, 真, 真)
+            输出文本 (“NAT-PMP retry still fails to renew, try to switch to UPnP”, 真, 真)
+        .如果结束
+        .如果真 (内网IP ＝ “”)
+            内网IP ＝ 取内网IP ()
+        .如果真结束
+        当前创建结果 ＝ 创建upnp主线程 (使用端口, “TCP”, 26576, 内网IP, “GTASuperESC_TP” ＋ 到文本 (使用端口), 1)
+        .如果 (当前创建结果 ＝ 1 或 当前创建结果 ＝ -1)
+            创建upnp主线程 (使用端口, “UDP”, 26576, 内网IP, “GTASuperESC_UP” ＋ 到文本 (使用端口), 1)
+            .如果 (是否中文系统)
+                输出文本 (“UPnP端口映射创建成功”, 真, 真)
+            .否则
+                输出文本 (“The UPnP port mapping was successfully created.”, 真, 真)
+            .如果结束
+            NATPMP时钟.时钟周期 ＝ 0
+        .否则
+            .如果 (是否中文系统)
+                输出文本 (“UPnP端口映射创建失败,尝试换方法重新创建”, 真, 真)
+            .否则
+                输出文本 (“The UPnP port mapping fails to be created. Try to change the method and recreate it.”, 真, 真)
+            .如果结束
+            当前创建结果 ＝ 创建upnp主线程 (使用端口, “TCP”, 26576, 内网IP, “GTASuperESC_2TP” ＋ 到文本 (使用端口), 2)
+            .如果 (当前创建结果 ＝ 1)
+                创建upnp主线程 (使用端口, “UDP”, 26576, 内网IP, “GTASuperESC_2UP” ＋ 到文本 (使用端口), 2)
+                .如果 (是否中文系统)
+                    输出文本 (“UPnP端口映射(2)创建成功”, 真, 真)
+                .否则
+                    输出文本 (“The UPnP port mapping was successfully created.”, 真, 真)
+                .如果结束
+                NATPMP时钟.时钟周期 ＝ 0
+            .否则
+                .如果 (是否中文系统)
+                    输出文本 (“UPnP端口映射依然创建失败”, 真, 真)
+                .否则
+                    输出文本 (“UPnP port mapping still fails to create”, 真, 真)
+                .如果结束
+                .如果 (是否中文系统)
+                    输出文本 (#错误点阵, 假, 真)
+                    输出文本 (“错误:无法续期端口映射,在线连接可能中断”, 真, 真)
+                    输出文本 (“请检查您的路由器设置和是否被防火墙/安全软件拦截”, 假, 真)
+                .否则
+                    输出文本 (“Error: Unable to renew port mapping, online connection may be broken, please check your router settings and whether they are blocked by firewall/security software”, 真, 真)
+                .如果结束
+
+            .如果结束
+
         .如果结束
 
     .如果真结束
@@ -5553,6 +5622,7 @@ n ＝ 取字节集长度 (字节集数据)
 .全局变量 选择框_禁用网卡, 逻辑型
 .全局变量 当前是否管理员权限, 逻辑型
 .全局变量 选择框_进程断网, 逻辑型
+.全局变量 创建upnp返回IP, 文本型
 .版本 2
 .支持库 sock
 
