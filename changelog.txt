@@ -1,5 +1,5 @@
 ﻿更新日志：
-GTASuperESCv7.8
+GTASuperESCv7.8   2018/12/30
 新增 NAT-PMP续期失败时可自动切换为UPnP映射
 修复 自动创建在某些多网卡环境获取网关IP失败
 优化 自动创建在仅支持UPnP设备也可检测多路由
