@@ -140,7 +140,7 @@
     <sys:String x:Key="Options:CheckInstalledMods">检查已安装的Mod</sys:String>
     <sys:String x:Key="Options:SelectInstalledMods">选中已安装的Mod</sys:String>
     <sys:String x:Key="Options:ReinstallInstalledMods">重新安装已有Mod</sys:String>
-    <sys:String x:Key="Options:EnableOneClickInstalls">启用OneClick™网页一键添加资源</sys:String>
+    <sys:String x:Key="Options:EnableOneClickInstalls">设置OneClick™网页一键添加资源</sys:String>
     <sys:String x:Key="Options:BeatSaver">[歌曲] BeatSaver</sys:String>
     <sys:String x:Key="Options:ModelSaber">[模型] ModelSaber</sys:String>
     <sys:String x:Key="Options:Playlists">[歌单] Playlists</sys:String>
