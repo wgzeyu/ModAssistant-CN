@@ -28,13 +28,12 @@ namespace ModAssistant
         public static string Arguments;
         public static bool Update = true;
         public static bool GUI = true;
-
+        public static string OCIWindow;
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
             // Set SecurityProtocol to prevent crash with TLS
             System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-            Languages.LoadLanguages();
 
             if (ModAssistant.Properties.Settings.Default.UpgradeRequired)
             {
@@ -44,7 +43,16 @@ namespace ModAssistant
             }
 
             Version = Version.Substring(0, Version.Length - 2);
-            BeatSaberInstallDirectory = Utils.GetInstallDir();
+            OCIWindow = ModAssistant.Properties.Settings.Default.OCIWindow;
+            if (string.IsNullOrEmpty(OCIWindow))
+            {
+                OCIWindow = "Yes";
+            }
+            Pages.Options options = Pages.Options.Instance;
+            options.InstallDirectory =
+                BeatSaberInstallDirectory = Utils.GetInstallDir();
+
+            Languages.LoadLanguages();
 
             while (string.IsNullOrEmpty(App.BeatSaberInstallDirectory))
             {
@@ -61,15 +69,22 @@ namespace ModAssistant
                 }
             }
 
-            BeatSaberInstallType = ModAssistant.Properties.Settings.Default.StoreType;
-            SaveModSelection = ModAssistant.Properties.Settings.Default.SaveSelected;
-            CheckInstalledMods = ModAssistant.Properties.Settings.Default.CheckInstalled;
-            SelectInstalledMods = ModAssistant.Properties.Settings.Default.SelectInstalled;
-            ReinstallInstalledMods = ModAssistant.Properties.Settings.Default.ReinstallInstalled;
-            CloseWindowOnFinish = ModAssistant.Properties.Settings.Default.CloseWindowOnFinish;
+            options.InstallType =
+                BeatSaberInstallType = ModAssistant.Properties.Settings.Default.StoreType;
+            options.SaveSelection =
+                SaveModSelection = ModAssistant.Properties.Settings.Default.SaveSelected;
+            options.CheckInstalledMods =
+                CheckInstalledMods = ModAssistant.Properties.Settings.Default.CheckInstalled;
+            options.SelectInstalledMods =
+                SelectInstalledMods = ModAssistant.Properties.Settings.Default.SelectInstalled;
+            options.ReinstallInstalledMods =
+                ReinstallInstalledMods = ModAssistant.Properties.Settings.Default.ReinstallInstalled;
+            options.CloseWindowOnFinish =
+                CloseWindowOnFinish = ModAssistant.Properties.Settings.Default.CloseWindowOnFinish;
 
             await ArgumentHandler(e.Args);
             await Init();
+            options.UpdateOCIWindow(OCIWindow);
         }
 
         private async Task Init()

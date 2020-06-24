@@ -30,26 +30,24 @@ namespace ModAssistant.Pages
         public bool PlaylistsProtocolHandlerEnabled { get; set; }
         public bool CloseWindowOnFinish { get; set; }
         public string LogURL { get; private set; }
+        public string OCIWindow { get; set; }
 
         public Options()
         {
             InitializeComponent();
-            InstallDirectory = App.BeatSaberInstallDirectory;
-            InstallType = App.BeatSaberInstallType;
-            SaveSelection = App.SaveModSelection;
-            CheckInstalledMods = App.CheckInstalledMods;
-            SelectInstalledMods = App.SelectInstalledMods;
-            ReinstallInstalledMods = App.ReinstallInstalledMods;
-            CloseWindowOnFinish = App.CloseWindowOnFinish;
+
+            OCIWindow = App.OCIWindow;
+            if (!string.IsNullOrEmpty(OCIWindow))
+            {
+                UpdateOCIWindow(OCIWindow);
+            }
             if (!CheckInstalledMods)
             {
                 SelectInstalled.IsEnabled = false;
                 ReinstallInstalled.IsEnabled = false;
             }
-
-
+                
             UpdateHandlerStatus();
-
             this.DataContext = this;
         }
 
@@ -206,7 +204,7 @@ namespace ModAssistant.Pages
                 await Task.Run(async () => await UploadLog());
 
                 System.Diagnostics.Process.Start(LogURL);
-                Clipboard.SetText(LogURL);
+                Utils.SetClipboard(LogURL);
                 MainWindow.Instance.MainText = (string)Application.Current.FindResource("Options:LogUrlCopied");
             }
             catch (Exception exception)
@@ -386,6 +384,33 @@ namespace ModAssistant.Pages
             if (File.Exists(playlistFile))
             {
                 Task.Run(() => { API.Playlists.DownloadFrom(playlistFile).Wait(); });
+            }
+        }
+
+        private void ShowOCIWindowComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            if (comboBox.SelectedItem != null)
+            { 
+                ComboBoxItem comboBoxItem = (ComboBoxItem)comboBox.SelectedItem;
+                UpdateOCIWindow(comboBoxItem.Tag.ToString());
+            }
+        }
+
+        public void UpdateOCIWindow(string state)
+        {
+            ComboBox comboBox = ShowOCIWindowComboBox;
+            if (comboBox != null)
+            {
+                if (state == "Yes") comboBox.SelectedIndex = 0;
+                else if (state == "Close") comboBox.SelectedIndex = 1;
+                else if (state == "No") comboBox.SelectedIndex = 2;
+                else return;
+            }
+            if (!string.IsNullOrEmpty(state))
+            {
+                OCIWindow = App.OCIWindow = Properties.Settings.Default.OCIWindow = state;
+                Properties.Settings.Default.Save();
             }
         }
     }
