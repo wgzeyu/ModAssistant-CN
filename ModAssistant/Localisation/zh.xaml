@@ -64,7 +64,7 @@
         <Bold>
             <Span Foreground="Red">请阅读</Span>
             <Hyperlink local:HyperlinkExtensions.IsExternal="True" NavigateUri="https://bs-wgzeyu.gtxcn.com/">
-                BS中文教程及常见问题解答
+                BS入坑必看中文教程
             </Hyperlink> 、
             <Hyperlink local:HyperlinkExtensions.IsExternal="True" NavigateUri="http://bs.zhm233.top/?1">
                 BS曲包模型等资源共享
