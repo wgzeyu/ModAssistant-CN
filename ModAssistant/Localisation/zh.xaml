@@ -76,7 +76,7 @@
         <LineBreak/>
         <LineBreak/>
         <Bold>
-            <Span Foreground="Red">若Mod下载缓慢或报错</Span> ，可在以上问题解答中通过使用本软件国内中转版等方式解决。
+            <Span Foreground="#0000FF">若</Span><Span Foreground="#0606F8">M</Span><Span Foreground="#0C00F2">o</Span><Span Foreground="#1206EC">d</Span><Span Foreground="#1800E6">加</Span><Span Foreground="#1F06DF">载</Span><Span Foreground="#2500D9">下</Span><Span Foreground="#2B06D3">载</Span><Span Foreground="#3100CD">缓</Span><Span Foreground="#3706C7">慢</Span><Span Foreground="#3E00C0">或</Span><Span Foreground="#4406BA">报</Span><Span Foreground="#4A00B4">错</Span> <Span Foreground="#5006AE">，</Span><Span Foreground="#5700A7">可</Span><Span Foreground="#5D06A1">在</Span><Span Foreground="#63009B">以</Span><Span Foreground="#690695">上</Span><Span Foreground="#6F008F">中</Span><Span Foreground="#760688">文</Span><Span Foreground="#7C0082">教</Span><Span Foreground="#82067C">程</Span><Span Foreground="#880076">中</Span><Span Foreground="#8F066F">通</Span><Span Foreground="#950069">过</Span><Span Foreground="#9B0663">使</Span><Span Foreground="#A1005D">用</Span><Span Foreground="#A70657">本</Span><Span Foreground="#AE0050">软</Span><Span Foreground="#B4064A">件</Span><Span Foreground="#BA0044">国</Span><Span Foreground="#C0063E">内</Span><Span Foreground="#C70037">中</Span><Span Foreground="#CD0631">转</Span><Span Foreground="#D3002B">版</Span><Span Foreground="#D90625">等</Span><Span Foreground="#DF001F">方</Span><Span Foreground="#E60618">式</Span><Span Foreground="#EC0012">解</Span><Span Foreground="#F2060C">决</Span>
         </Bold>
     </Span>
     <sys:String x:Key="Intro:AgreeButton">同意</sys:String>
